@@ -193,7 +193,14 @@ class App(customtkinter.CTk):
         gen.generate_variation("image{}.jpg".format(self.display_num))
 
     def generate_video(self):
-        gen.generate_video()
+        gen_true = gen.generate_video(self.upscale_var.get())
+        if(gen_true):
+            self.video_frame = customtkinter.CTkLabel(self, text="")
+            self.video_frame.grid(row=3, column=4, padx=20, pady=10)
+
+            videoplayer = TkinterVideo(master=self.video_frame)
+            videoplayer.load(r"final_video.mp4")
+            videoplayer.play()
 
     def next_image(self):
         if(self.display_num < len([entry for entry in os.listdir(self.image_path) if os.path.isfile(os.path.join(self.image_path, entry))])):

@@ -128,7 +128,7 @@ def generate_variation(source_file):
 
     return 1
 
-def generate_video():
+def generate_video(song_choice):
 
     i = 1
     j = 0
@@ -144,16 +144,16 @@ def generate_video():
     dir_path = r'images'
     num_files = len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, entry))])
 
-    audio = SplitWavAudioMubin("audio", "item_0.wav")
+    audio = SplitWavAudioMubin("audio", f"item_{song_choice}.wav")
     audio_duration = audio.get_duration()
     print(audio_duration)
     audio.multiple_split(math.ceil(audio_duration/10))
 
-    for k in range(num_files):
+    for k in range(num_files - 1):
         
         #Load the audio file using moviepy
         print("Extract voiceover and get duration...")
-        audio_clip = AudioFileClip(f"audio/{j}_item_0.wav")
+        audio_clip = AudioFileClip(f"audio/{j}_item_{song_choice}.wav")
         audio_duration = audio_clip.duration
 
         # Load the image file using moviepy
