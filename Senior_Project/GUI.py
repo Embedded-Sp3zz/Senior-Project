@@ -1,10 +1,10 @@
 import tkinter
 import tkinter.messagebox
+from tkVideoPlayer import TkinterVideo
 import customtkinter
 import os
 from PIL import Image
-import text_generator as txt_gen
-import image_generator as img_gen
+import AI_generator as gen
 from pathlib import Path
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
@@ -56,7 +56,7 @@ class App(customtkinter.CTk):
         self.promptBox = customtkinter.CTkTextbox(self)
         self.promptBox.grid(row=1, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
-        self.prompt_input_button = customtkinter.CTkButton(self, text="Generate", command=self.generate_text)
+        self.prompt_input_button = customtkinter.CTkButton(self, text="Run", command=self.generate_text)
         self.prompt_input_button.grid(row=2, column=1, padx=20, pady=(10, 10))
 
 
@@ -74,7 +74,7 @@ class App(customtkinter.CTk):
 
         self.left_result_button = customtkinter.CTkButton(self.result_input_frame, text="<--", command=self.prev_image)
         self.left_result_button.grid(row=0, column=0, pady=(10, 10))
-        self.result_input_button = customtkinter.CTkButton(self.result_input_frame, text="Run", command=self.generate_images)
+        self.result_input_button = customtkinter.CTkButton(self.result_input_frame, text="Generate", command=self.generate_images)
         self.result_input_button.grid(row=0, column=1, pady=(10, 10))
         self.right_result_button = customtkinter.CTkButton(self.result_input_frame, text="-->", command=self.next_image)
         self.right_result_button.grid(row=0, column=2, pady=(10, 10))
@@ -93,7 +93,7 @@ class App(customtkinter.CTk):
 
         self.left_image_button = customtkinter.CTkButton(self.image_input_frame, text="<--", command=self.prev_image)
         self.left_image_button.grid(row=0, column=0, pady=(10, 10))
-        self.image_input_button = customtkinter.CTkButton(self.image_input_frame, text="Run", command=self.get_prompt)
+        self.image_input_button = customtkinter.CTkButton(self.image_input_frame, text="Variation", command=self.generate_variation)
         self.image_input_button.grid(row=0, column=1, pady=(10, 10))
         self.right_image_button = customtkinter.CTkButton(self.image_input_frame, text="-->", command=self.next_image)
         self.right_image_button.grid(row=0, column=2, pady=(10, 10))
@@ -143,12 +143,16 @@ class App(customtkinter.CTk):
         self.video_frame_label = customtkinter.CTkLabel(self, text="Video AI", anchor="w")
         self.video_frame_label.grid(row=2, column=4)
 
-        self.merge_video_button = customtkinter.CTkButton(self, text="Merge", command=self.get_prompt)
+        self.merge_video_button = customtkinter.CTkButton(self, text="Merge", command=self.generate_video)
         self.merge_video_button.grid(row=4, column=4, padx=20, pady=(10, 10))
 
         # set default values
         self.appearance_mode_optionemenu.set("Dark")
-        self.scaling_optionemenu.set("100%")
+        self.scaling_optionemenu.set("100%")   
+        self.promptBox.insert("0.0", "Generate me text prompts for Dall E image model.")     #Input Box Prompt
+        self.songBox.insert("0.0", "WAV: \nArtist: \nGenre: \nPrompt Length: \nInitial Song Length: \nTotal Song Length: \nLyrics: ")     #Song Box Prompt
+
+
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -163,8 +167,8 @@ class App(customtkinter.CTk):
     def generate_text(self):
         self.resultBox.delete("0.0", "1000.0")
         prompt = self.promptBox.get("0.0","1000.0")
-        txt_gen.prompt = prompt
-        done = txt_gen.generate_text()
+        gen.prompt = prompt
+        done = gen.generate_text()
         if(done):
             with open(self.text_path) as f:
                 lines = f.read()
@@ -177,13 +181,19 @@ class App(customtkinter.CTk):
 
     def generate_images(self):
         self.display_num = 1
-        gen = img_gen.generate_images()
-        if(gen):
+        gen_true = gen.generate_images()
+        if(gen_true):
             # load images with light and dark mode image
             self.display_image = customtkinter.CTkImage(Image.open(os.path.join(self.image_path, "image{}.jpg".format(self.display_num))), size=(500, 500))
 
             self.image_frame = customtkinter.CTkLabel(self, text="", image=self.display_image)
             self.image_frame.grid(row=1, column=3, padx=20, pady=10)
+        
+    def generate_variation(self):
+        gen.generate_variation("image{}.jpg".format(self.display_num))
+
+    def generate_video(self):
+        gen.generate_video()
 
     def next_image(self):
         if(self.display_num < len([entry for entry in os.listdir(self.image_path) if os.path.isfile(os.path.join(self.image_path, entry))])):
