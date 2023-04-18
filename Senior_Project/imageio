@@ -1,0 +1,13 @@
+import cv2 
+import imageio
+
+img = cv2.imread("images/image2.jpg")
+f = []
+
+for i in range(50, 0, -1):
+    ed = cv2.Canny(img, 100+i, 100+(2*i))
+    f.append(ed)
+
+with imageio.get_writer("test.gif", mode = "I") as writer:
+    for idx, frame in enumerate(f):
+        writer.append_data(frame)

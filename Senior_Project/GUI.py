@@ -1,6 +1,6 @@
 import tkinter
 import tkinter.messagebox
-from tkVideoPlayer import TkinterVideo
+#from tkVideoPlayer import TkinterVideo
 import customtkinter
 import os
 from PIL import Image
@@ -10,6 +10,7 @@ from pathlib import Path
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
+# 0 or 1 for FX: Noise, Implode, Sepia Tone, Sketch, Solarize, Stereogram, Swirl, Wave, Spread
 
 class App(customtkinter.CTk):
     def __init__(self):
@@ -34,9 +35,9 @@ class App(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=8,sticky="nsew")
         #self.sidebar_frame.grid_rowconfigure(3, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="AI Generated Art", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="API Key", command=self.sidebar_button_event)
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
 
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
@@ -141,16 +142,51 @@ class App(customtkinter.CTk):
 
         # create video AI frame
         self.video_frame_label = customtkinter.CTkLabel(self, text="Video AI", anchor="w")
-        self.video_frame_label.grid(row=2, column=4)
+        self.video_frame_label.grid(row=0, column=4)
+
+        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="SpecialFX")
+        self.scrollable_frame.grid(row=1, column=4, padx=(20,0), pady=(20,0), sticky="nsew")
+        self.scrollable_frame.grid_rowconfigure(4, weight=1)
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)
+        # 0 or 1 for FX: Noise, Implode, Sepia Tone, Solarize, Stereogram, Swirl, Wave, Spread
+        self.specialFX = []
+        self.list = []
+        blend = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Blend")
+        blend.grid(row=0, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(blend)
+        noise = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Noise")
+        noise.grid(row=1, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(noise)
+        implode = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Implode")
+        implode.grid(row=2, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(implode)
+        sepiaTone = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Sepia Tone")
+        sepiaTone.grid(row=3, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(sepiaTone)
+        solarize = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Solarize")
+        solarize.grid(row=4, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(solarize)
+        swirl = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Swirl")
+        swirl.grid(row=5, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(swirl)
+        wave = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Wave")
+        wave.grid(row=6, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(wave)
+        spread = customtkinter.CTkSwitch(master=self.scrollable_frame, text="Spread")
+        spread.grid(row=7, column=0, padx=10, pady=(0,20))
+        self.specialFX.append(spread)
+
+
 
         self.merge_video_button = customtkinter.CTkButton(self, text="Merge", command=self.generate_video)
-        self.merge_video_button.grid(row=4, column=4, padx=20, pady=(10, 10))
+        self.merge_video_button.grid(row=5, column=4, padx=20, pady=(10, 10))
 
         # set default values
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")   
         self.promptBox.insert("0.0", "Generate me text prompts for Dall E image model.")     #Input Box Prompt
         self.songBox.insert("0.0", "WAV: \nArtist: \nGenre: \nPrompt Length: \nInitial Song Length: \nTotal Song Length: \nLyrics: ")     #Song Box Prompt
+        self.specialFX[0].select()
 
 
 
@@ -193,8 +229,10 @@ class App(customtkinter.CTk):
         gen.generate_variation("image{}.jpg".format(self.display_num))
 
     def generate_video(self):
-        gen_true = gen.generate_video(self.upscale_var.get())
-        if(gen_true):
+        for i in range(len(self.specialFX)):
+            self.list.append(self.specialFX[i].get())
+        gen_true = gen.generate_video(self.upscale_var.get(), self.list)
+        if(False):
             self.video_frame = customtkinter.CTkLabel(self, text="")
             self.video_frame.grid(row=3, column=4, padx=20, pady=10)
 
@@ -220,8 +258,6 @@ class App(customtkinter.CTk):
 
     def get_prompt(self):
         return
-
-
 
 
 if __name__ == "__main__":
